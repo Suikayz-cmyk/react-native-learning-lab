@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import DraggableFlatList from 'react-native-draggable-flatlist';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 import { useTodos } from '../hooks/useTodos';
 import { useFilter } from '../hooks/useFilter';
@@ -16,10 +17,15 @@ import { useFilter } from '../hooks/useFilter';
 import AddTodoForm from '../components/AddTodoForm';
 import TodoItem from '../components/TodoItem';
 import FilterBar from '../components/FilterBar';
+import { useTheme } from '../context/ThemeContext';
+
 
 const HomeScreen = () => {
   // filter
   const { activeFilter, setFilter } = useFilter();
+
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   // todos
   const {
@@ -33,18 +39,38 @@ const HomeScreen = () => {
   } = useTodos(activeFilter);
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={[
+    styles.safe,
+    { backgroundColor: isDark ? '#0F172A' : '#0F172A' }
+    ]}>
       <StatusBar barStyle='light-content' backgroundColor='#0F172A' />
 
-      <View style={styles.container}>
+      <View style={[
+        styles.container,
+        { backgroundColor: isDark ? '#020617' : '#F8FAFC' }
+     ]}>
 
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.title}>My Todos</Text>
-          <Text style={styles.subtitle}>
-            {stats.completed} dari {stats.total} selesai
+          <Text style={[
+            styles.title,
+            { color: isDark ? '#FFFFFF' : '#0F172A' }
+            ]}>My Todos</Text>
+            
+          <Text style={[
+            styles.title,
+            { color: isDark ? '#FFFFFF' : '#0F172A' }
+            ]}>{stats.completed} dari {stats.total} selesai
           </Text>
         </View>
+
+        <TouchableOpacity onPress={toggleTheme} style={styles.themeBtn}>
+            <Ionicons
+                name={isDark ? 'sunny' : 'moon'}
+                size={22}
+                color={isDark ? '#FFD700' : '#0F172A'}
+            />
+        </TouchableOpacity>
 
         {/* Form */}
         <AddTodoForm onAdd={addTodo} />
@@ -110,9 +136,12 @@ const styles = StyleSheet.create({
   },
 
   header: {
-    marginBottom: 24,
-    paddingTop: 8
-  },
+  marginBottom: 24,
+  paddingTop: 8,
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+},
 
   title: {
     fontSize: 32,
@@ -133,12 +162,18 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
 
+ themeBtn: {
+  padding: 8,
+  borderRadius: 8,
+ },
+
   clearBtn: {
     textAlign: 'center',
     color: '#F97316',
     padding: 12,
     fontSize: 14
   }
+  
 });
 
 export default HomeScreen;
