@@ -26,9 +26,7 @@ export const TodoProvider = ({ children }) => {
         const stored = await AsyncStorage.getItem(STORAGE_KEY);
     if (stored) {
         const parsed = JSON.parse(stored);
-        parsed.forEach(todo => {
-            dispatch({ type: ACTIONS.ADD_TODO, payload: todo.text });
-        });
+        dispatch({ type: ACTIONS.SET_TODOS, payload: parsed });
     }
     } catch (error) {
            console.error('Error loading todos:', error);

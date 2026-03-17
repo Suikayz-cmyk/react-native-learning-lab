@@ -6,6 +6,7 @@ export const ACTIONS = {
  DELETE_TODO: 'DELETE_TODO',
  EDIT_TODO: 'EDIT_TODO',
  CLEAR_DONE: 'CLEAR_DONE',
+ SET_TODOS: 'SET_TODOS',
 };
 
 export const todoReducer = (state, action) => {
@@ -44,5 +45,8 @@ export const todoReducer = (state, action) => {
         return state.filter(todo => !todo.done);
             default:
         return state; // Selalu ada default!
+
+    case ACTIONS.SET_TODOS:
+    return action.payload;
   }
 };
