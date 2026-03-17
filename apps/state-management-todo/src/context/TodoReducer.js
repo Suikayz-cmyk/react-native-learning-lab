@@ -1,5 +1,7 @@
 // src/context/TodoReducer.js
 
+import { act } from "react";
+
 export const ACTIONS = {
  ADD_TODO: 'ADD_TODO',
  TOGGLE_TODO: 'TOGGLE_TODO',
@@ -13,16 +15,18 @@ export const todoReducer = (state, action) => {
  switch (action.type) {
 
     case ACTIONS.ADD_TODO:
-        if (!action.payload.trim()) return state; // Guard
-        return [
-            ...state,
-        {
-            id: Date.now().toString(),
-            text: action.payload.trim(),
-            done: false,
-            createdAt: new Date().toISOString(),
-        }
- ];
+  if (!action.payload.text.trim()) return state;
+
+  return [
+    ...state,
+    {
+      id: Date.now().toString(),
+      text: action.payload.text.trim(),
+      dueDate: action.payload.dueDate,
+      done: false,
+      createdAt: new Date().toISOString(),
+    }
+  ];
 
     case ACTIONS.TOGGLE_TODO:
         return state.map(todo =>

@@ -42,8 +42,11 @@ export const TodoProvider = ({ children }) => {
  }, [todos]);
 
  // Action creators (lebih mudah dipanggil di komponen)
- const addTodo = useCallback((text) => {
-    dispatch({ type: ACTIONS.ADD_TODO, payload: text });
+ const addTodo = useCallback((text, dueDate) => {
+  dispatch({
+    type: ACTIONS.ADD_TODO,
+    payload: { text, dueDate }
+  });
  }, []);
 
  const toggleTodo = useCallback((id) => {

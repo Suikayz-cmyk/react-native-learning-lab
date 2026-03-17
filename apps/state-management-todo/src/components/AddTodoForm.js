@@ -5,10 +5,13 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 const AddTodoForm = ({ onAdd }) => {
  const [text, setText] = useState('');
 
+ const [dueDate, setDueDate] = useState('');
+ 
  const handleSubmit = () => {
     if (text.trim()) {
-        onAdd(text);
+        onAdd(text, dueDate);
         setText(''); // Reset input
+        setDueDate('');
     }
  };
 
@@ -22,6 +25,13 @@ const AddTodoForm = ({ onAdd }) => {
             placeholderTextColor='#94A3B8'
             onSubmitEditing={handleSubmit}
             returnKeyType='done'
+        />
+
+        <TextInput
+            style={styles.input}
+            value={dueDate}
+            onChangeText={setDueDate}
+            placeholder="Due date (YYYY-MM-DD)"
         />
 
         <TouchableOpacity style={styles.button} onPress={handleSubmit}>
