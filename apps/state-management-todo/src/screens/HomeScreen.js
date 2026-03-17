@@ -13,21 +13,21 @@ import { Ionicons } from '@expo/vector-icons';
 
 import { useTodos } from '../hooks/useTodos';
 import { useFilter } from '../hooks/useFilter';
+import { useTheme } from '../context/ThemeContext';
 
 import AddTodoForm from '../components/AddTodoForm';
 import TodoItem from '../components/TodoItem';
 import FilterBar from '../components/FilterBar';
-import { useTheme } from '../context/ThemeContext';
-
 
 const HomeScreen = () => {
-  // filter
-  const { activeFilter, setFilter } = useFilter();
-
+  // 🔥 THEME
   const { theme, toggleTheme } = useTheme();
   const isDark = theme === 'dark';
 
-  // todos
+  // 🔥 FILTER
+  const { activeFilter, setFilter } = useFilter();
+
+  // 🔥 TODOS
   const {
     todos,
     stats,
@@ -35,54 +35,71 @@ const HomeScreen = () => {
     toggleTodo,
     deleteTodo,
     clearDone,
-    reorderTodos // 🔥 penting
+    reorderTodos
   } = useTodos(activeFilter);
 
   return (
-    <SafeAreaView style={[
-    styles.safe,
-    { backgroundColor: isDark ? '#0F172A' : '#0F172A' }
-    ]}>
-      <StatusBar barStyle='light-content' backgroundColor='#0F172A' />
+    <SafeAreaView
+      style={[
+        styles.safe,
+        { backgroundColor: '#0F172A' }
+      ]}
+    >
+      <StatusBar barStyle="light-content" backgroundColor="#0F172A" />
 
-      <View style={[
-        styles.container,
-        { backgroundColor: isDark ? '#020617' : '#F8FAFC' }
-     ]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor: isDark ? '#020617' : '#F8FAFC' }
+        ]}
+      >
 
-        {/* Header */}
+        {/* 🔥 HEADER */}
         <View style={styles.header}>
-          <Text style={[
-            styles.title,
-            { color: isDark ? '#FFFFFF' : '#0F172A' }
-            ]}>My Todos</Text>
-            
-          <Text style={[
-            styles.title,
-            { color: isDark ? '#FFFFFF' : '#0F172A' }
-            ]}>{stats.completed} dari {stats.total} selesai
-          </Text>
+
+          {/* TEXT GROUP */}
+          <View>
+            <Text
+              style={[
+                styles.title,
+                { color: isDark ? '#FFFFFF' : '#0F172A' }
+              ]}
+            >
+              My Todos
+            </Text>
+
+            <Text
+              style={[
+                styles.subtitle,
+                { color: isDark ? '#94A3B8' : '#64748B' }
+              ]}
+            >
+              {stats.completed} dari {stats.total} selesai
+            </Text>
+          </View>
+
+          {/* TOGGLE */}
+          <TouchableOpacity onPress={toggleTheme} style={styles.themeBtn}>
+            <Ionicons
+              name={isDark ? 'sunny' : 'moon'}
+              size={22}
+              color={isDark ? '#FFD700' : '#0F172A'}
+            />
+          </TouchableOpacity>
+
         </View>
 
-        <TouchableOpacity onPress={toggleTheme} style={styles.themeBtn}>
-            <Ionicons
-                name={isDark ? 'sunny' : 'moon'}
-                size={22}
-                color={isDark ? '#FFD700' : '#0F172A'}
-            />
-        </TouchableOpacity>
-
-        {/* Form */}
+        {/* FORM */}
         <AddTodoForm onAdd={addTodo} />
 
-        {/* Filter */}
+        {/* FILTER */}
         <FilterBar
           activeFilter={activeFilter}
           onFilterChange={setFilter}
           stats={stats}
         />
 
-        {/* 🔥 DRAGGABLE LIST */}
+        {/* LIST */}
         <DraggableFlatList
           data={todos}
           keyExtractor={(item) => item.id}
@@ -100,18 +117,18 @@ const HomeScreen = () => {
               />
             </TouchableOpacity>
           )}
-          ListEmptyComponent={(
+          ListEmptyComponent={
             <Text style={styles.emptyText}>
               Tidak ada todo{' '}
               {activeFilter !== 'all'
                 ? `dengan filter '${activeFilter}'`
                 : ''}
             </Text>
-          )}
+          }
           showsVerticalScrollIndicator={false}
         />
 
-        {/* Clear done */}
+        {/* CLEAR DONE */}
         {stats.completed > 0 && (
           <Text style={styles.clearBtn} onPress={clearDone}>
             Hapus {stats.completed} item selesai
@@ -132,48 +149,44 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#F8FAFC'
   },
 
   header: {
-  marginBottom: 24,
-  paddingTop: 8,
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-},
+    marginBottom: 24,
+    paddingTop: 8,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
 
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: '#0F172A',
-    marginBottom: 4
+    marginBottom: 4,
   },
 
   subtitle: {
     fontSize: 14,
-    color: '#64748B'
   },
 
   emptyText: {
     textAlign: 'center',
     color: '#94A3B8',
     marginTop: 60,
-    fontSize: 16
+    fontSize: 16,
   },
 
- themeBtn: {
-  padding: 8,
-  borderRadius: 8,
- },
+  themeBtn: {
+    padding: 8,
+    borderRadius: 8,
+  },
 
   clearBtn: {
     textAlign: 'center',
     color: '#F97316',
     padding: 12,
-    fontSize: 14
-  }
-  
+    fontSize: 14,
+  },
 });
 
 export default HomeScreen;
