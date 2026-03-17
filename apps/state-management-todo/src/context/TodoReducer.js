@@ -9,6 +9,7 @@ export const ACTIONS = {
  EDIT_TODO: 'EDIT_TODO',
  CLEAR_DONE: 'CLEAR_DONE',
  SET_TODOS: 'SET_TODOS',
+ SET_TODOS_ORDER: 'SET_TODOS_ORDER',
 };
 
 export const todoReducer = (state, action) => {
@@ -34,6 +35,9 @@ export const todoReducer = (state, action) => {
             ? { ...todo, done: !todo.done }
             : todo
     );
+
+    case ACTIONS.SET_TODOS_ORDER:
+        return action.payload;
 
     case ACTIONS.DELETE_TODO:
         return state.filter(todo => todo.id !== action.id);

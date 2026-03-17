@@ -61,6 +61,13 @@ export const TodoProvider = ({ children }) => {
     dispatch({ type: ACTIONS.CLEAR_DONE });
  }, [])
 
+ const reorderTodos = useCallback((newOrder) => {
+  dispatch({
+    type: ACTIONS.SET_TODOS_ORDER,
+    payload: newOrder,
+  });
+}, []);
+    
  // Value yang dibagikan ke seluruh tree
  const value = {
     todos,
@@ -69,6 +76,7 @@ export const TodoProvider = ({ children }) => {
     toggleTodo,
     deleteTodo,
     clearDone,
+    reorderTodos,
  };
 
  return (
