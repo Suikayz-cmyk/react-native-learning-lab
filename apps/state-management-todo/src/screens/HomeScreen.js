@@ -100,6 +100,7 @@ const HomeScreen = () => {
         />
 
         {/* LIST */}
+        <View style={{ flex: 1 }}>
         <DraggableFlatList
           data={todos}
           keyExtractor={(item) => item.id}
@@ -127,6 +128,7 @@ const HomeScreen = () => {
           }
           showsVerticalScrollIndicator={false}
         />
+        </View>
 
         {/* CLEAR DONE */}
         {stats.completed > 0 && (
