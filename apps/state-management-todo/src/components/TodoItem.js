@@ -45,6 +45,15 @@ console.log(todo);
         <Text style={styles.deleteText}>✕</Text>
       </TouchableOpacity>
 
+      <Text style={[
+        styles.priority,
+        (todo.priority || 'medium') === 'high' && { color: 'red' },
+        (todo.priority || 'medium') === 'medium' && { color: 'orange' },
+        (todo.priority || 'medium') === 'low' && { color: 'green' },
+        ]}>
+        {(todo.priority || 'medium').toUpperCase()}
+      </Text>
+
     </View>
   );
 });
@@ -121,6 +130,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold'
   },
+  priority: {
+  fontSize: 10,
+  marginTop: 2,
+  fontWeight: 'bold',
+},
 });
 
 export default TodoItem;

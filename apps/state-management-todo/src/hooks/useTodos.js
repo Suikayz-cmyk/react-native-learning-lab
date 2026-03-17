@@ -21,8 +21,21 @@ export const useTodos = (filter = 'all') => {
     completed: todos.filter(t => t.done).length,
  }), [todos])
 
+ const priorityOrder = {
+  high: 3,
+  medium: 2,
+  low: 1
+};
+
+const sortedTodos = [...filteredTodos].sort((a, b) => {
+  const aPriority = priorityOrder[a.priority || 'medium'];
+  const bPriority = priorityOrder[b.priority || 'medium'];
+
+  return bPriority - aPriority;
+});
+
  return {
-    todos: filteredTodos,
+    todos: sortedTodos,
     stats,
     addTodo,
     toggleTodo,

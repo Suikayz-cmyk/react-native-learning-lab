@@ -24,6 +24,7 @@ export const todoReducer = (state, action) => {
       id: Date.now().toString(),
       text: action.payload.text.trim(),
       dueDate: action.payload.dueDate,
+      priority: action.payload.priority || 'medium',
       done: false,
       createdAt: new Date().toISOString(),
     }

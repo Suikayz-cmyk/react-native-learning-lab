@@ -7,6 +7,7 @@ const AddTodoForm = ({ onAdd }) => {
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
+  const [priority, setPriority] = useState('medium');
 
   const onChangeDate = (event, selectedDate) => {
     setShowPicker(false);
@@ -20,7 +21,7 @@ const AddTodoForm = ({ onAdd }) => {
 
   const handleSubmit = () => {
     if (text.trim()) {
-      onAdd(text, formatDate(dueDate));
+      onAdd(text, formatDate(dueDate), priority);
       setText('');
       setDueDate(null);
     }
@@ -64,6 +65,21 @@ const AddTodoForm = ({ onAdd }) => {
           onChange={onChangeDate}
         />
       )}
+
+      <View style={styles.priorityContainer}>
+        {['high', 'medium', 'low'].map((p) => (
+            <TouchableOpacity
+            key={p}
+            style={[
+                styles.priorityBtn,
+                priority === p && styles.priorityActive
+            ]}
+            onPress={() => setPriority(p)}
+            >
+            <Text style={styles.priorityText}>{p}</Text>
+            </TouchableOpacity>
+        ))}
+      </View>
 
     </View>
   );
@@ -121,6 +137,29 @@ const styles = StyleSheet.create({
     color: '#1E293B',
     fontSize: 14,
   },
+
+  priorityContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  gap: 8,
+},
+
+priorityBtn: {
+  flex: 1,
+  padding: 10,
+  borderRadius: 8,
+  backgroundColor: '#E2E8F0',
+  alignItems: 'center',
+},
+
+priorityActive: {
+  backgroundColor: '#38BDF8',
+},
+
+priorityText: {
+  fontSize: 12,
+  color: '#1E293B',
+},
 });
 
 export default AddTodoForm;
