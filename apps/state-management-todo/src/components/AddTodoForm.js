@@ -4,6 +4,7 @@ import { View, TextInput, TouchableOpacity, Text, StyleSheet } from 'react-nativ
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const AddTodoForm = ({ onAdd }) => {
+  // Local state → hanya untuk UI sementara (form input)
   const [text, setText] = useState('');
   const [dueDate, setDueDate] = useState(null);
   const [showPicker, setShowPicker] = useState(false);
@@ -20,8 +21,11 @@ const AddTodoForm = ({ onAdd }) => {
   };
 
   const handleSubmit = () => {
+    // Validasi sederhana → jangan kirim data kosong
     if (text.trim()) {
       onAdd(text, formatDate(dueDate), priority);
+
+      // Reset form → UX penting
       setText('');
       setDueDate(null);
     }
@@ -30,7 +34,7 @@ const AddTodoForm = ({ onAdd }) => {
   return (
     <View style={styles.container}>
 
-      {/* 🔥 BARIS ATAS */}
+      {/* BARIS ATAS */}
       <View style={styles.row}>
         <TextInput
           style={styles.input}
@@ -46,7 +50,7 @@ const AddTodoForm = ({ onAdd }) => {
         </TouchableOpacity>
       </View>
 
-      {/* 🔥 BARIS BAWAH (DATE PICKER) */}
+      {/* BARIS BAWAH (DATE PICKER) */}
       <TouchableOpacity
         style={styles.dateButton}
         onPress={() => setShowPicker(true)}
@@ -56,7 +60,7 @@ const AddTodoForm = ({ onAdd }) => {
         </Text>
       </TouchableOpacity>
 
-      {/* 🔥 DATE PICKER */}
+      {/* DATE PICKER */}
       {showPicker && (
         <DateTimePicker
           value={dueDate || new Date()}
@@ -92,7 +96,7 @@ const styles = StyleSheet.create({
     gap: 10,
   },
 
-  // 🔥 row atas (input + tombol)
+  // row atas (input + tombol)
   row: {
     flexDirection: 'row',
     gap: 8,

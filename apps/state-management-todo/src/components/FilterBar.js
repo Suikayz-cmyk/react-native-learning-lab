@@ -5,6 +5,7 @@ import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
 import { FILTERS } from '../hooks/useFilter';
 
 const FilterBar = ({ activeFilter, onFilterChange, stats }) => {
+ // Data-driven → scalable, ga hardcode UI
  const buttons = [
     { key: FILTERS.ALL, label: `Semua (${stats.total})` },
     { key: FILTERS.ACTIVE, label: `Aktif (${stats.active})` },
@@ -16,7 +17,11 @@ const FilterBar = ({ activeFilter, onFilterChange, stats }) => {
         {buttons.map(btn => (
         <TouchableOpacity
             key={btn.key}
+
+            // Visual state → user tau filter aktif
             style={[styles.btn, activeFilter === btn.key && styles.btnActive]}
+            
+             // Emit event ke parent → no logic di sini
             onPress={() => onFilterChange(btn.key)}
         >
             <Text style={[styles.label, activeFilter === btn.key &&

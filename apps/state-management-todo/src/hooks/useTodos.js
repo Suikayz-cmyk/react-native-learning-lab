@@ -6,7 +6,7 @@ import { useMemo } from 'react';
 export const useTodos = (filter = 'all') => {
  const { todos, addTodo, toggleTodo, deleteTodo, clearDone, reorderTodos  } = useTodoContext();
 
- // Computed values — gunakan useMemo untuk optimasi
+ // Memo → mencegah recalculation tiap render
  const filteredTodos = useMemo(() => {
     switch (filter) {
         case 'active': return todos.filter(t => !t.done);
@@ -15,6 +15,7 @@ export const useTodos = (filter = 'all') => {
     }
  }, [todos, filter]);
 
+  // Derived state → bukan disimpan, tapi dihitung
  const stats = useMemo(() => ({
     total: todos.length,
     active: todos.filter(t => !t.done).length,
@@ -27,11 +28,35 @@ export const useTodos = (filter = 'all') => {
   low: 1
 };
 
+// Sorting logic = decision engine
 const sortedTodos = [...filteredTodos].sort((a, b) => {
-  const aPriority = priorityOrder[a.priority || 'medium'];
-  const bPriority = priorityOrder[b.priority || 'medium'];
+  const now = new Date();
 
-  return bPriority - aPriority;
+   // Convert ke Date object
+  const dateA = a.dueDate ? new Date(a.dueDate) : null;
+  const dateB = b.dueDate ? new Date(b.dueDate) : null;
+
+  // Hitung jarak deadline ke sekarang (dalam hari)
+  const diffA = dateA ? (dateA - now) / (1000 * 60 * 60 * 24) : Infinity;
+  const diffB = dateB ? (dateB - now) / (1000 * 60 * 60 * 24) : Infinity;
+
+  // Urgent = <= 2 hari → diprioritaskan
+  const isUrgentA = diffA <= 2;
+  const isUrgentB = diffB <= 2;
+
+  // Step 1: Urgent dulu
+  if (isUrgentA && !isUrgentB) return -1;
+  if (!isUrgentA && isUrgentB) return 1;
+
+  // Step 2: Priority
+  const priorityDiff =
+    priorityOrder[b.priority || 'medium'] -
+    priorityOrder[a.priority || 'medium'];
+
+  if (priorityDiff !== 0) return priorityDiff;
+
+  // Step 3: Deadline terdekat
+  return (dateA || Infinity) - (dateB || Infinity);
 });
 
  return {

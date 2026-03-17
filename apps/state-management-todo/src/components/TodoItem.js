@@ -21,7 +21,7 @@ console.log(todo);
         {todo.done && <Text style={styles.checkmark}>✓</Text>}
       </TouchableOpacity>
 
-      {/* 🔥 TEXT CONTAINER (FIX DI SINI) */}
+      {/* TEXT CONTAINER (FIX DI SINI) */}
       <View style={styles.textContainer}>
         <Text style={[styles.text, todo.done && styles.textDone]}>
           {todo.text}
@@ -95,7 +95,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   },
 
-  // 🔥 container tengah
   textContainer: {
     flex: 1,
   },

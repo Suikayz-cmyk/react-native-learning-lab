@@ -54,7 +54,7 @@ const HomeScreen = () => {
         ]}
       >
 
-        {/* 🔥 HEADER */}
+        {/* HEADER */}
         <View style={styles.header}>
 
           {/* TEXT GROUP */}

@@ -10,16 +10,15 @@ import React, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { todoReducer, ACTIONS } from './TodoReducer';
 
-// 1. Buat Context
+// Context = cara share state ke seluruh component tanpa prop drilling
 const TodoContext = createContext(null);
 
 const STORAGE_KEY = '@todos';
 
-// 2. Buat Provider Component
 export const TodoProvider = ({ children }) => {
  const [todos, dispatch] = useReducer(todoReducer, []);
 
- // Load data dari AsyncStorage saat mount
+ // Load pertama kali → hydration dari local storage
  useEffect(() => {
     const loadTodos = async () => {
     try {
@@ -35,13 +34,14 @@ export const TodoProvider = ({ children }) => {
     loadTodos();
  }, []);
 
- // Simpan ke AsyncStorage setiap ada perubahan
+ // Sync otomatis ke storage setiap todos berubah
+ // Ini bikin persistence "transparent"
  useEffect(() => {
     AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(todos))
         .catch(err => console.error('Error saving:', err));
  }, [todos]);
 
- // Action creators (lebih mudah dipanggil di komponen)
+ // Action wrapper → biar komponen ga langsung dispatch (lebih clean)
  const addTodo = useCallback((text, dueDate, priority) => {
   dispatch({
     type: ACTIONS.ADD_TODO,
@@ -86,7 +86,7 @@ export const TodoProvider = ({ children }) => {
  );
 };
 
-// 3. Export custom hook untuk konsumsi
+//Export custom hook untuk konsumsi
 export const useTodoContext = () => {
  const context = useContext(TodoContext);
  if (!context) {
