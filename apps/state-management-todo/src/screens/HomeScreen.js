@@ -75,3 +75,30 @@ const HomeScreen = () => {
     </SafeAreaView>
  );
 };
+
+const styles = StyleSheet.create({
+ safe: { flex: 1, backgroundColor: '#0F172A' },
+ container: { flex: 1, padding: 20, backgroundColor: '#F8FAFC' },
+ header: { marginBottom: 24, paddingTop: 8 },
+ title: {
+ fontSize: 32,
+ fontWeight: 'bold',
+ color: '#0F172A',
+ marginBottom: 4,
+ },
+ subtitle: { fontSize: 14, color: '#64748B' },
+ emptyText: {
+ textAlign: 'center',
+ color: '#94A3B8',
+ marginTop: 60,
+ fontSize: 16,
+ },
+ clearBtn: {
+ textAlign: 'center',
+ color: '#F97316',
+ padding: 12,
+ fontSize: 14,
+ },
+});
+
+export default HomeScreen;
