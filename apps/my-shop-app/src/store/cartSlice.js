@@ -29,8 +29,8 @@ const cartSlice = createSlice({
   },
 })
 
-// export action biar bisa dipanggil dari UI
+// export action
 export const { addItem, removeItem, clearCart } = cartSlice.actions
 
-// export reducer untuk dimasukin ke store
+// export reducer
 export default cartSlice.reducer

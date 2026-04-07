@@ -2,11 +2,11 @@ import React from 'react'
 import { View, Text, FlatList, Button } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { removeItem, clearCart } from '../store/cartSlice'
+import CartItem from '../components/CartItem'
 
 export default function CartScreen() {
   const dispatch = useDispatch()
 
-  // WHY: ambil data dari Redux store
   const items = useSelector(state => state.cart.items)
   const total = useSelector(state => state.cart.total)
 
@@ -16,15 +16,10 @@ export default function CartScreen() {
         data={items}
         keyExtractor={(item, index) => index.toString()}
         renderItem={({ item }) => (
-          <View style={{ marginBottom: 10 }}>
-            <Text>{item.name}</Text>
-            <Text>Rp {item.price}</Text>
-
-            <Button
-              title="Hapus"
-              onPress={() => dispatch(removeItem(item.id))}
-            />
-          </View>
+          <CartItem
+            item={item}
+            onRemove={() => dispatch(removeItem(item.id))}
+          />
         )}
       />
 

@@ -3,6 +3,7 @@ import { View, Text, FlatList, Button } from 'react-native'
 import { useDispatch } from 'react-redux'
 import { addItem } from '../store/cartSlice'
 import { products } from '../data/products'
+import ProductCard from '../components/ProductCard'
 
 export default function ProductListScreen() {
   const dispatch = useDispatch()
@@ -11,16 +12,12 @@ export default function ProductListScreen() {
     <FlatList
       data={products}
       keyExtractor={(item) => item.id}
+      
       renderItem={({ item }) => (
-        <View style={{ padding: 12 }}>
-          <Text>{item.name}</Text>
-          <Text>Rp {item.price}</Text>
-
-          <Button
-            title="Add to Cart"
-            onPress={() => dispatch(addItem(item))}
-          />
-        </View>
+        <ProductCard
+          item={item}
+          onAdd={() => dispatch(addItem(item))}
+        />
       )}
     />
   )
