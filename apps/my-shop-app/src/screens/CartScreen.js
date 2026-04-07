@@ -1,9 +1,10 @@
 import React from 'react'
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
+import { Ionicons } from '@expo/vector-icons'
 
 import { incrementItem, decrementItem, removeItem, clearCart } from '../store/cartSlice'
-import { formatRupiah } from '../utils/formatRupiah'
+import { formatRupiah } from '../utils/formatRupiah'  
 import CartItem from '../components/CartItem'
 
 export default function CartScreen() {
@@ -16,19 +17,26 @@ export default function CartScreen() {
     <View style={styles.container}>
       
       {/* LIST */}
-      <FlatList
-        data={items}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={{ paddingBottom: 100 }}
-        renderItem={({ item }) => (
-          <CartItem
-            item={item}
-            onPlus={() => dispatch(incrementItem(item.id))}
-            onMinus={() => dispatch(decrementItem(item.id))}
-            onRemove={() => dispatch(removeItem(item.id))}
-          />
-        )}
-      />
+      {items.length === 0 ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="cart-outline" size={60} color="gray" />
+          <Text style={styles.emptyText}>Keranjang masih kosong</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={{ paddingBottom: 100 }}
+          renderItem={({ item }) => (
+            <CartItem
+              item={item}
+              onPlus={() => dispatch(incrementItem(item.id))}
+              onMinus={() => dispatch(decrementItem(item.id))}
+              onRemove={() => dispatch(removeItem(item.id))}
+            />
+          )}
+        />
+      )}
 
       {/* STICKY FOOTER */}
       <View style={styles.footer}>
@@ -48,6 +56,12 @@ export default function CartScreen() {
   const styles = StyleSheet.create({
     container: {
       flex: 1,
+    },
+
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
 
     footer: {
