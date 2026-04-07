@@ -1,27 +1,35 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
 export default function ProductCard({ item, onAdd }) {
+  const [qty, setQty] = useState(1)
+
   return (
     <View style={styles.card}>
       
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.category}>{item.category}</Text>
-      </View>
-
-      {/* PRICE */}
+      <Text style={styles.name}>{item.name}</Text>
       <Text style={styles.price}>Rp {item.price}</Text>
 
-      {/* STOCK */}
-      <Text style={styles.stock}>Stock: {item.stock}</Text>
+      {/* QUANTITY */}
+      <View style={styles.qtyContainer}>
+        <TouchableOpacity onPress={() => setQty(q => Math.max(1, q - 1))}>
+            <Ionicons name="remove" size={20} />
+        </TouchableOpacity>
 
-      {/* BUTTON */}
-      <TouchableOpacity style={styles.button} onPress={onAdd}>
-        <Ionicons name="add-circle-outline" size={20} color="#fff" />
-        <Text style={styles.buttonText}>Add</Text>
+        <Text style={styles.qty}>{qty}</Text>
+
+        <TouchableOpacity onPress={() => setQty(q => q + 1)}>
+            <Ionicons name="add" size={20} />
+        </TouchableOpacity>
+        </View>
+
+      {/* ADD BUTTON */}
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => onAdd(qty)}
+      >
+        <Text style={{ color: '#fff' }}>Add to Cart</Text>
       </TouchableOpacity>
 
     </View>
@@ -76,5 +84,24 @@ const styles = StyleSheet.create({
   buttonText: {
     color: '#fff',
     marginLeft: 6,
+  },
+  
+  qtyContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    width: 120,
+    alignSelf: 'flex-end',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginVertical: 10,
+  },
+
+  qty: {
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 })

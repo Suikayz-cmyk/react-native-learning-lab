@@ -1,10 +1,8 @@
 import React from 'react'
-import { View, Text, FlatList, Button, StyleSheet } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
 import { incrementItem, decrementItem, removeItem, clearCart } from '../store/cartSlice'
 import CartItem from '../components/CartItem'
-import { TouchableOpacity } from 'react-native'
-
 
 export default function CartScreen() {
   const dispatch = useDispatch()
