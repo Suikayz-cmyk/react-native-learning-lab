@@ -2,6 +2,8 @@ import React from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
+import { formatRupiah } from '../utils/formatRupiah'
+
 export default function CartItem({ item, onPlus, onMinus, onRemove }) {
   return (
    <View style={styles.card}>
@@ -15,7 +17,7 @@ export default function CartItem({ item, onPlus, onMinus, onRemove }) {
         </TouchableOpacity>
     </View>
 
-    <Text style={styles.price}>Rp {item.price}</Text>
+    <Text style={styles.price}>Rp. {formatRupiah(item.price)}</Text>
 
     {/* QUANTITY */}
     <View style={styles.row}>
@@ -31,7 +33,7 @@ export default function CartItem({ item, onPlus, onMinus, onRemove }) {
     </View>
 
     <Text style={styles.subtotal}>
-        Subtotal: Rp {item.price * item.quantity}
+        Subtotal: Rp. {formatRupiah(item.price * item.quantity)}
     </Text>
 
     </View>

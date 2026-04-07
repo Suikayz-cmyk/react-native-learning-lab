@@ -1,7 +1,9 @@
 import React from 'react'
 import { View, Text, FlatList, TouchableOpacity, StyleSheet } from 'react-native'
 import { useSelector, useDispatch } from 'react-redux'
+
 import { incrementItem, decrementItem, removeItem, clearCart } from '../store/cartSlice'
+import { formatRupiah } from '../utils/formatRupiah'
 import CartItem from '../components/CartItem'
 
 export default function CartScreen() {
@@ -30,7 +32,9 @@ export default function CartScreen() {
 
       {/* STICKY FOOTER */}
       <View style={styles.footer}>
-        <Text style={styles.total}>Total: Rp {total}</Text>
+        <Text style={styles.total}>
+          Total: Rp {formatRupiah(total)}
+        </Text>
 
         <TouchableOpacity style={styles.clearBtn} onPress={() => dispatch(clearCart())}>
           <Text style={{ color: '#fff' }}>Clear Cart</Text>

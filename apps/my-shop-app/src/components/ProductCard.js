@@ -2,6 +2,8 @@ import React, { useState } from 'react'
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 
+import { formatRupiah } from '../utils/formatRupiah'
+
 export default function ProductCard({ item, onAdd }) {
   const [qty, setQty] = useState(1)
 
@@ -9,7 +11,7 @@ export default function ProductCard({ item, onAdd }) {
     <View style={styles.card}>
       
       <Text style={styles.name}>{item.name}</Text>
-      <Text style={styles.price}>Rp {item.price}</Text>
+      <Text style={styles.price}>Rp. {formatRupiah(item.price)}</Text>
 
       {/* QUANTITY */}
       <View style={styles.qtyContainer}>
