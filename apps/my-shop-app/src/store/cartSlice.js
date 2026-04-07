@@ -31,13 +31,31 @@ const cartSlice = createSlice({
 
       if (!item) return
 
+      state.total -= item.price * item.quantity
+      state.items = state.items.filter(i => i.id !== action.payload)
+    },
+
+    incrementItem: (state, action) => {
+      const item = state.items.find(i => i.id === action.payload)
+
+      if (item) {
+        item.quantity += 1
+        state.total += item.price
+      }
+    },
+
+    decrementItem: (state, action) => {
+      const item = state.items.find(i => i.id === action.payload)
+
+      if (!item) return
+
       if (item.quantity > 1) {
         item.quantity -= 1
+        state.total -= item.price
       } else {
         state.items = state.items.filter(i => i.id !== action.payload)
+        state.total -= item.price
       }
-
-      state.total -= item.price
     },
 
     // reset isi cart
@@ -49,7 +67,13 @@ const cartSlice = createSlice({
 })
 
 // export action
-export const { addItem, removeItem, clearCart } = cartSlice.actions
+export const {
+  addItem,
+  removeItem,
+  clearCart,
+  incrementItem,
+  decrementItem
+} = cartSlice.actions
 
 // export reducer
 export default cartSlice.reducer
