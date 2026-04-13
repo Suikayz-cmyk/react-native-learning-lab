@@ -3,10 +3,13 @@ import {
   ActivityIndicator,
   FlatList,
   RefreshControl,
+  StyleSheet,
   Text,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { CategoryFilter } from "@/src/components/CategoryFilter";
+import { ErrorView } from "@/src/components/ErrorView";
 import { NewsCard } from "@/src/components/NewsCard";
 import { useNews } from "@/src/hooks/useNews";
 import { Category } from "@/src/services/newsService";
@@ -55,12 +58,25 @@ export default function HomeScreen() {
     />
   );
 
-  if (isLoading) return <Text>Loading...</Text>;
-  if (isError) return <Text>Error: {error.message}</Text>;
+  if (isLoading)
+    return (
+      <SafeAreaView style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Memuat berita...</Text>
+      </SafeAreaView>
+    );
+
+  if (isError) return <ErrorView message={error.message} onRetry={refetch} />;
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* sementara kita skip Header & CategoryFilter */}
+      <Text style={styles.header}>BeritaApp</Text>
+
+      <CategoryFilter
+        categories={CATEGORIES}
+        selected={category}
+        onChange={setCategory}
+      />
 
       <FlatList
         data={articles}
@@ -78,6 +94,32 @@ export default function HomeScreen() {
   );
 }
 
-const styles = {
-  container: { flex: 1 },
-};
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  header: {
+    fontSize: 20,
+    fontWeight: "bold",
+    padding: 12,
+  },
+  error: {
+    color: "red",
+    fontSize: 16,
+    margin: 10,
+  },
+  retry: {
+    color: "blue",
+    margin: 10,
+  },
+  loadingText: {
+    marginTop: 10,
+    textAlign: "center",
+  },
+});
