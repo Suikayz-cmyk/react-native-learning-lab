@@ -1,0 +1,12 @@
+import "dotenv/config";
+
+export default {
+  expo: {
+    name: "BeritaApp",
+    extra: {
+      newsApiKey: process.env.NEWS_API_KEY,
+      newsApiBaseUrl: process.env.NEWS_API_BASE_URL,
+      apiBaseUrl: process.env.NEWS_API_BASE_URL,
+    },
+  },
+};
