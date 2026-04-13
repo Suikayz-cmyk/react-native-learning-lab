@@ -11,10 +11,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryFilter } from "@/src/components/CategoryFilter";
 import { ErrorView } from "@/src/components/ErrorView";
 import { NewsCard } from "@/src/components/NewsCard";
+import { useBookmarks } from "@/src/hooks/useBookmarks";
 import { useNews } from "@/src/hooks/useNews";
 import { Category } from "@/src/services/newsService";
 
-// type sementara (karena modul gak kasih global type)
 type Article = {
   title: string;
   description: string;
@@ -35,6 +35,8 @@ const CATEGORIES: { label: string; value: Category }[] = [
 export default function HomeScreen() {
   const [category, setCategory] = useState<Category>("general");
 
+  const { bookmarks, toggleBookmark } = useBookmarks();
+
   const {
     data,
     isLoading,
@@ -46,15 +48,14 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  // gabung semua halaman
   const articles: Article[] = data?.pages.flatMap((p: any) => p.articles) ?? [];
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
       article={item}
       onPress={() => {}}
-      onBookmark={() => {}}
-      isBookmarked={false}
+      onBookmark={() => toggleBookmark(item)}
+      isBookmarked={bookmarks.some((b) => b.url === item.url)}
     />
   );
 
