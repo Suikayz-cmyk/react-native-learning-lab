@@ -3,10 +3,19 @@ import { useEffect, useState } from "react";
 
 const STORAGE_KEY = "BOOKMARKS";
 
-export const useBookmarks = () => {
-  const [bookmarks, setBookmarks] = useState<any[]>([]);
+type Article = {
+  title: string;
+  description: string;
+  url: string;
+  urlToImage?: string;
+  publishedAt: string;
+  source: { name: string };
+};
 
-  // load dari storage
+export const useBookmarks = () => {
+  const [bookmarks, setBookmarks] = useState<Article[]>([]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
   useEffect(() => {
     loadBookmarks();
   }, []);
@@ -14,40 +23,57 @@ export const useBookmarks = () => {
   const loadBookmarks = async () => {
     try {
       const data = await AsyncStorage.getItem(STORAGE_KEY);
-      if (data) {
-        setBookmarks(JSON.parse(data));
+
+      if (!data) {
+        setBookmarks([]);
+        return;
+      }
+
+      const parsed = JSON.parse(data);
+
+      if (Array.isArray(parsed)) {
+        setBookmarks(parsed);
+      } else {
+        setBookmarks([]);
       }
     } catch (error) {
-      console.log("Error load bookmarks", error);
+      console.log("Error load bookmarks:", error);
+      setBookmarks([]);
+    } finally {
+      setIsLoaded(true);
     }
   };
 
-  const saveBookmarks = async (newBookmarks: any[]) => {
+  const saveBookmarks = async (newBookmarks: Article[]) => {
     try {
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newBookmarks));
     } catch (error) {
-      console.log("Error save bookmarks", error);
+      console.log("Error save bookmarks:", error);
     }
   };
 
-  const toggleBookmark = (article: any) => {
-    const exists = bookmarks.find((b) => b.url === article.url);
+  const toggleBookmark = (article: Article) => {
+    setBookmarks((prev) => {
+      const exists = prev.some((b) => b.url === article.url);
 
-    let updated;
+      let updated;
 
-    if (exists) {
-      updated = bookmarks.filter((b) => b.url !== article.url);
-    } else {
-      updated = [...bookmarks, article];
-    }
+      if (exists) {
+        updated = prev.filter((b) => b.url !== article.url);
+      } else {
+        updated = [...prev, article];
+      }
 
-    setBookmarks(updated);
-    saveBookmarks(updated);
+      saveBookmarks(updated);
+
+      return updated;
+    });
   };
 
   return {
     bookmarks,
     toggleBookmark,
     loadBookmarks,
+    isLoaded,
   };
 };
