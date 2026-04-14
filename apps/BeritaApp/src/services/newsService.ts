@@ -8,33 +8,55 @@ export type Category =
   | "health";
 
 export const newsService = {
-  // GET top headlines berdasarkan kategori
+  // Top headlines
   getTopHeadlines: async (category: Category = "general", page = 1) => {
     const { data } = await api.get("/top-headlines", {
-      params: { country: "us", category, page, pageSize: 10 },
+      params: {
+        country: "us",
+        category,
+        page,
+        pageSize: 10,
+      },
     });
-    return { articles: data.articles, totalResults: data.totalResults };
+
+    return {
+      articles: data.articles,
+      totalResults: data.totalResults,
+    };
   },
 
-  // GET search berita
-  searchArticles: async (query: string, page = 1) => {
+  // SEARCH + FILTER (VERSI FINAL)
+  searchArticles: async (
+    query: string,
+    source?: string,
+    from?: string,
+    to?: string,
+    page = 1,
+  ) => {
     const { data } = await api.get("/everything", {
       params: {
-        q: query,
-        language: "id",
+        q: query || "news",
+        sources: source || undefined,
+        from: from || undefined,
+        to: to || undefined,
         sortBy: "publishedAt",
         page,
         pageSize: 10,
       },
     });
-    return { articles: data.articles, totalResults: data.totalResults };
+
+    return {
+      articles: data.articles,
+      totalResults: data.totalResults,
+    };
   },
 
-  // GET sources
+  // Sources
   getSources: async (category?: Category) => {
     const { data } = await api.get("/top-headlines/sources", {
       params: { country: "id", category },
     });
+
     return data.sources;
   },
 };

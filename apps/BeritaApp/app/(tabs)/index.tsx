@@ -1,3 +1,4 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
   ActivityIndicator,
@@ -35,11 +36,18 @@ const CATEGORIES: { label: string; value: Category }[] = [
 ];
 
 export default function HomeScreen() {
+  const queryClient = useQueryClient();
+
+  // state
   const [category, setCategory] = useState<Category>("general");
   const [search, setSearch] = useState("");
+  const [source, setSource] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
   const { bookmarks, toggleBookmark } = useBookmarks();
 
+  // news default
   const {
     data,
     isLoading,
@@ -51,14 +59,21 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  const { data: searchData, isLoading: isSearchLoading } =
-    useNewsSearch(search);
+  // search + filter
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+    error: searchError,
+  } = useNewsSearch(search, source, fromDate, toDate);
 
-  // 🔥 SATU AJA, JANGAN DOUBLE
-  const articles: Article[] =
-    search.length >= 3
-      ? (searchData?.articles ?? [])
-      : (data?.pages.flatMap((p: any) => p.articles) ?? []);
+  // logic filtering
+  const isFiltering =
+    search.length >= 3 || source.length >= 3 || !!fromDate || !!toDate;
+
+  const articles: Article[] = isFiltering
+    ? (searchData?.articles ?? [])
+    : (data?.pages.flatMap((p: any) => p.articles) ?? []);
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
@@ -69,7 +84,8 @@ export default function HomeScreen() {
     />
   );
 
-  if (isLoading)
+  // Loading default
+  if (isLoading && !isFiltering)
     return (
       <SafeAreaView style={styles.center}>
         <ActivityIndicator size="large" />
@@ -77,12 +93,41 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
 
-  if (isError) return <ErrorView message={error.message} onRetry={refetch} />;
+  // loading search
+  if (isSearchLoading && isFiltering)
+    return (
+      <SafeAreaView style={styles.center}>
+        <ActivityIndicator size="large" />
+        <Text style={styles.loadingText}>Mencari berita...</Text>
+      </SafeAreaView>
+    );
+
+  // ERROR HANDLER FINAL (ANTI STUCK)
+  if (isError || isSearchError)
+    return (
+      <ErrorView
+        message={(searchError || error)?.message}
+        onRetry={() => {
+          // RESET STATE
+          setSearch("");
+          setSource("");
+          setFromDate("");
+          setToDate("");
+
+          // CLEAR CACHE
+          queryClient.removeQueries({ queryKey: ["search"] });
+
+          // FETCH NORMAL DATA
+          refetch();
+        }}
+      />
+    );
 
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>BeritaApp</Text>
 
+      {/* SEARCH */}
       <TextInput
         placeholder="Cari berita..."
         value={search}
@@ -90,12 +135,55 @@ export default function HomeScreen() {
         style={styles.search}
       />
 
+      {/* FILTER */}
+      <TextInput
+        placeholder="Sumber (contoh: bbc-news)"
+        value={source}
+        onChangeText={setSource}
+        style={styles.search}
+      />
+
+      <TextInput
+        placeholder="Dari tanggal (YYYY-MM-DD)"
+        value={fromDate}
+        onChangeText={setFromDate}
+        style={styles.search}
+      />
+
+      <TextInput
+        placeholder="Sampai tanggal (YYYY-MM-DD)"
+        value={toDate}
+        onChangeText={setToDate}
+        style={styles.search}
+      />
+
+      {/* RESET BUTTON */}
+      <Text
+        onPress={() => {
+          setSearch("");
+          setSource("");
+          setFromDate("");
+          setToDate("");
+
+          queryClient.removeQueries({ queryKey: ["search"] });
+        }}
+        style={{
+          textAlign: "center",
+          color: "blue",
+          marginBottom: 10,
+        }}
+      >
+        Reset Filter
+      </Text>
+
+      {/* CATEGORY */}
       <CategoryFilter
         categories={CATEGORIES}
         selected={category}
         onChange={setCategory}
       />
 
+      {/* LIST */}
       <FlatList
         data={articles}
         renderItem={renderItem}
@@ -116,7 +204,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-
   center: {
     flex: 1,
     justifyContent: "center",
@@ -127,15 +214,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 12,
   },
-  error: {
-    color: "red",
-    fontSize: 16,
-    margin: 10,
-  },
-  retry: {
-    color: "blue",
-    margin: 10,
-  },
   loadingText: {
     marginTop: 10,
     textAlign: "center",
@@ -144,7 +222,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: "#ccc",
     borderRadius: 8,
-    margin: 10,
+    marginHorizontal: 10,
+    marginBottom: 6,
     padding: 8,
   },
 });
