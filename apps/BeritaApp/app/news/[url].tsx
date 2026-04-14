@@ -1,36 +1,22 @@
 import { useLocalSearchParams } from "expo-router";
-import {
-    Linking,
-    SafeAreaView,
-    Text,
-    TouchableOpacity
-} from "react-native";
+import { ActivityIndicator } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { WebView } from "react-native-webview";
 
 export default function NewsDetailScreen() {
   const { url } = useLocalSearchParams();
 
+  if (!url) {
+    return null;
+  }
+
   return (
-    <SafeAreaView style={{ flex: 1, padding: 20 }}>
-      <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
-        Detail Berita
-      </Text>
-
-      <Text numberOfLines={3} style={{ marginBottom: 20 }}>
-        {url}
-      </Text>
-
-      <TouchableOpacity
-        onPress={() => Linking.openURL(url as string)}
-        style={{
-          backgroundColor: "#0891B2",
-          padding: 10,
-          borderRadius: 8,
-        }}
-      >
-        <Text style={{ color: "#fff", textAlign: "center" }}>
-          Buka di Browser
-        </Text>
-      </TouchableOpacity>
+    <SafeAreaView style={{ flex: 1 }}>
+      <WebView
+        source={{ uri: url as string }}
+        startInLoadingState={true}
+        renderLoading={() => <ActivityIndicator size="large" />}
+      />
     </SafeAreaView>
   );
 }
