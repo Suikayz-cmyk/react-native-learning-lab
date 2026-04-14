@@ -1,6 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system/legacy";
 import { Image } from "expo-image";
 import { useRouter } from "expo-router";
+import * as Sharing from "expo-sharing";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type Article = {
@@ -35,6 +37,23 @@ export function NewsCard({
   onBookmark,
   isBookmarked,
 }: NewsCardProps) {
+  const handleShare = async () => {
+    try {
+      // isi konten berita
+      const content = `${article.title}\n\n${article.description}\n\n${article.url}`;
+
+      // lokasi file
+      const fileUri = FileSystem.documentDirectory + "article.txt";
+
+      // tulis file
+      await FileSystem.writeAsStringAsync(fileUri, content);
+
+      // share file
+      await Sharing.shareAsync(fileUri);
+    } catch (error) {
+      console.log("Error sharing:", error);
+    }
+  };
   return (
     <TouchableOpacity
       style={styles.card}
@@ -64,6 +83,9 @@ export function NewsCard({
           size={20}
           color={isBookmarked ? "#0891B2" : "#94A3B8"}
         />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.shareBtn} onPress={handleShare}>
+        <Ionicons name="share-outline" size={20} color="#94A3B8" />
       </TouchableOpacity>
     </TouchableOpacity>
   );
@@ -110,5 +132,10 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 10,
     right: 10,
+  },
+  shareBtn: {
+    position: "absolute",
+    bottom: 10,
+    right: 40,
   },
 });

@@ -142,7 +142,7 @@ export default function HomeScreen() {
         onPress={toggleTheme}
         style={{
           textAlign: "center",
-          color: "#3b82f6",
+          color: "#0263ff",
           marginBottom: 10,
         }}
       >
