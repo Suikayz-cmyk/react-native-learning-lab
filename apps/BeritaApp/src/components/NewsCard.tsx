@@ -1,8 +1,8 @@
 import { Ionicons } from "@expo/vector-icons";
 import { Image } from "expo-image";
+import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-// type sementara (karena modul gak kasih global type)
 type Article = {
   title: string;
   description: string;
@@ -22,10 +22,12 @@ interface NewsCardProps {
 // fallback image
 const PLACEHOLDER_IMAGE = "https://via.placeholder.com/150";
 
-// format tanggal sederhana
+// format tanggal
 const formatDate = (date: string) => {
   return new Date(date).toLocaleDateString();
 };
+
+const router = useRouter();
 
 export function NewsCard({
   article,
@@ -34,7 +36,11 @@ export function NewsCard({
   isBookmarked,
 }: NewsCardProps) {
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => router.push(`/news/${encodeURIComponent(article.url)}`)}
+      activeOpacity={0.8}
+    >
       <Image
         source={{ uri: article.urlToImage ?? PLACEHOLDER_IMAGE }}
         style={styles.image}
@@ -63,7 +69,6 @@ export function NewsCard({
   );
 }
 
-// styles minimal biar gak error
 const styles = StyleSheet.create({
   card: {
     margin: 10,
