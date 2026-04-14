@@ -1,23 +1,21 @@
 import { darkTheme, lightTheme } from "@/src/constants/theme";
 import { useTheme } from "@/src/context/ThemeContext";
-import { useQueryClient } from "@tanstack/react-query";
+import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 import { useState } from "react";
 import {
-  ActivityIndicator,
   FlatList,
-  RefreshControl,
   StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { CategoryFilter } from "@/src/components/CategoryFilter";
-import { ErrorView } from "@/src/components/ErrorView";
 import { NewsCard } from "@/src/components/NewsCard";
 import { useBookmarks } from "@/src/hooks/useBookmarks";
-import { useNews } from "@/src/hooks/useNews";
-import { useNewsSearch } from "@/src/hooks/useSearch";
 import { Category } from "@/src/services/newsService";
 
 type Article = {
@@ -29,6 +27,26 @@ type Article = {
   source: { name: string };
 };
 
+// MOCK DATA (for testing UI without API)
+const MOCK_ARTICLES = [
+  {
+    title: "Contoh Berita Teknologi",
+    description: "Ini adalah berita dummy untuk testing UI.",
+    url: "https://example.com",
+    urlToImage: "https://picsum.photos/400/200",
+    publishedAt: new Date().toISOString(),
+    source: { name: "Mock News" },
+  },
+  {
+    title: "Berita Kedua",
+    description: "UI tetap bisa dikembangkan tanpa API.",
+    url: "https://example.com/2",
+    urlToImage: "https://picsum.photos/400/201",
+    publishedAt: new Date().toISOString(),
+    source: { name: "Dummy Source" },
+  },
+];
+
 const CATEGORIES: { label: string; value: Category }[] = [
   { label: "Umum", value: "general" },
   { label: "Teknologi", value: "technology" },
@@ -38,7 +56,7 @@ const CATEGORIES: { label: string; value: Category }[] = [
 ];
 
 export default function HomeScreen() {
-  const queryClient = useQueryClient();
+  //const queryClient = useQueryClient();
 
   // state
   const [category, setCategory] = useState<Category>("general");
@@ -48,13 +66,17 @@ export default function HomeScreen() {
   const [toDate, setToDate] = useState("");
 
   const { bookmarks, toggleBookmark } = useBookmarks();
+  const [showSearch, setShowSearch] = useState(false);
+  const [showFilter, setShowFilter] = useState(false);
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   // theme
   const { theme, toggleTheme } = useTheme();
   const colors = theme === "dark" ? darkTheme : lightTheme;
 
   // data
-  const {
+  /*   const {
     data,
     isLoading,
     isError,
@@ -70,7 +92,7 @@ export default function HomeScreen() {
     isLoading: isSearchLoading,
     isError: isSearchError,
     error: searchError,
-  } = useNewsSearch(search, source, fromDate, toDate);
+  } = useNewsSearch(search, source, fromDate, toDate); */
 
   // filtering logic (SAFE)
   const isFiltering =
@@ -79,9 +101,10 @@ export default function HomeScreen() {
     !!fromDate ||
     !!toDate;
 
-  const articles: Article[] = isFiltering
-    ? (searchData?.articles ?? [])
-    : (data?.pages.flatMap((p: any) => p.articles) ?? []);
+  const articles: Article[] = MOCK_ARTICLES;
+  /* const articles: Article[] = isFiltering
+  ? (searchData?.articles ?? [])
+  : (data?.pages.flatMap((p: any) => p.articles) ?? []); */
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
@@ -93,7 +116,7 @@ export default function HomeScreen() {
   );
 
   // loading default
-  if (isLoading && !isFiltering)
+  /* if (isLoading && !isFiltering)
     return (
       <SafeAreaView
         style={[styles.center, { backgroundColor: colors.background }]}
@@ -130,72 +153,111 @@ export default function HomeScreen() {
           refetch();
         }}
       />
-    );
+    );*/
 
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <Text style={[styles.header, { color: colors.text }]}>BeritaApp</Text>
+      <View style={styles.headerRow}>
+        <Text style={[styles.header, { color: colors.text }]}>BeritaApp</Text>
 
-      <Text
-        onPress={toggleTheme}
-        style={{
-          textAlign: "center",
-          color: "#0263ff",
-          marginBottom: 10,
-        }}
-      >
-        Toggle {theme === "dark" ? "Light" : "Dark"} Mode
-      </Text>
+        <View style={styles.headerActions}>
+          {/* SEARCH ICON */}
+          <TouchableOpacity onPress={() => setShowSearch((prev) => !prev)}>
+            <Ionicons name="search" size={22} color={colors.text} />
+          </TouchableOpacity>
+
+          {/* THEME TOGGLE */}
+          <TouchableOpacity onPress={toggleTheme}>
+            <Ionicons
+              name={theme === "dark" ? "sunny" : "moon"}
+              size={22}
+              color={colors.text}
+            />
+          </TouchableOpacity>
+
+          {/* FILTER ICON */}
+          <TouchableOpacity onPress={() => setShowFilter((prev) => !prev)}>
+            <Ionicons name="options" size={22} color={colors.text} />
+          </TouchableOpacity>
+        </View>
+      </View>
 
       {/* SEARCH */}
-      <TextInput
-        placeholder="Cari berita..."
-        placeholderTextColor="#888"
-        value={search}
-        onChangeText={setSearch}
-        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
-      />
+      {showSearch && (
+        <TextInput
+          placeholder="Cari berita..."
+          placeholderTextColor="#888"
+          value={search}
+          onChangeText={setSearch}
+          style={[
+            styles.search,
+            {
+              color: colors.text,
+              borderColor: colors.border,
+              backgroundColor: theme === "dark" ? "#1E1E1E" : "#F9F9F9",
+            },
+          ]}
+        />
+      )}
 
-      {/* FILTER */}
-      <TextInput
-        placeholder="Sumber (contoh: bbc-news)"
-        placeholderTextColor="#888"
-        value={source}
-        onChangeText={setSource}
-        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
-      />
+      {showFilter && (
+        <View style={styles.filterContainer}>
+          {/* SOURCE */}
+          <TextInput
+            placeholder="Sumber (bbc-news)"
+            placeholderTextColor="#888"
+            value={source}
+            onChangeText={setSource}
+            style={[
+              styles.search,
+              { color: colors.text, borderColor: colors.border },
+            ]}
+          />
 
-      <TextInput
-        placeholder="Dari tanggal (YYYY-MM-DD)"
-        placeholderTextColor="#888"
-        value={fromDate}
-        onChangeText={setFromDate}
-        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
-      />
+          {/* DATE PICKER */}
+          <View style={styles.filterContainer}>
+            <Text style={[styles.label, { color: colors.text }]}>Date:</Text>
 
-      <TextInput
-        placeholder="Sampai tanggal (YYYY-MM-DD)"
-        placeholderTextColor="#888"
-        value={toDate}
-        onChangeText={setToDate}
-        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
-      />
+            <View style={styles.dateRow}>
+              {/* FROM */}
+              <View style={styles.dateItem}>
+                <Text style={{ color: colors.text }}>From</Text>
+                <TouchableOpacity onPress={() => setShowFromPicker(true)}>
+                  <Ionicons name="calendar" size={22} color={colors.text} />
+                </TouchableOpacity>
+                <Text style={{ color: colors.text, fontSize: 12 }}>
+                  {fromDate || "-"}
+                </Text>
+              </View>
 
-      {/* RESET */}
-      <Text
-        onPress={() => {
-          setSearch("");
-          setSource("");
-          setFromDate("");
-          setToDate("");
-          queryClient.removeQueries({ queryKey: ["search"] });
-        }}
-        style={{ textAlign: "center", color: "#3b82f6", marginBottom: 10 }}
-      >
-        Reset Filter
-      </Text>
+              {/* TO */}
+              <View style={styles.dateItem}>
+                <Text style={{ color: colors.text }}>To</Text>
+                <TouchableOpacity onPress={() => setShowToPicker(true)}>
+                  <Ionicons name="calendar" size={22} color={colors.text} />
+                </TouchableOpacity>
+                <Text style={{ color: colors.text, fontSize: 12 }}>
+                  {toDate || "-"}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* RESET */}
+          <TouchableOpacity
+            onPress={() => {
+              setSource("");
+              setFromDate("");
+              setToDate("");
+            }}
+            style={styles.resetBtn}
+          >
+            <Text style={styles.resetText}>Reset Filter</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* CATEGORY */}
       <CategoryFilter
@@ -209,14 +271,39 @@ export default function HomeScreen() {
         data={articles}
         renderItem={renderItem}
         keyExtractor={(item) => item.url}
-        refreshControl={
+        /* refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        }
-        onEndReached={() => hasNextPage && fetchNextPage()}
+        } 
+         onEndReached={() => hasNextPage && fetchNextPage()}
         onEndReachedThreshold={0.3}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
-        contentContainerStyle={{ paddingBottom: 24 }}
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null} */
+        contentContainerStyle={{
+          paddingHorizontal: 12,
+          paddingBottom: 24,
+        }}
       />
+
+      {showFromPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          onChange={(event, date) => {
+            setShowFromPicker(false);
+            if (date) setFromDate(date.toISOString().split("T")[0]);
+          }}
+        />
+      )}
+
+      {showToPicker && (
+        <DateTimePicker
+          value={new Date()}
+          mode="date"
+          onChange={(event, date) => {
+            setShowToPicker(false);
+            if (date) setToDate(date.toISOString().split("T")[0]);
+          }}
+        />
+      )}
     </SafeAreaView>
   );
 }
@@ -231,15 +318,66 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   header: {
-    fontSize: 20,
+    fontSize: 24,
     fontWeight: "bold",
-    padding: 12,
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
   },
   search: {
     borderWidth: 1,
-    borderRadius: 8,
-    marginHorizontal: 10,
+    borderRadius: 12,
+    marginHorizontal: 12,
+    marginBottom: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  headerRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 8,
+  },
+
+  headerActions: {
+    flexDirection: "row",
+    gap: 16,
+  },
+  filterContainer: {
+    marginHorizontal: 12,
+    marginBottom: 10,
+  },
+
+  dateRow: {
+    flexDirection: "row",
+    justifyContent: "flex-start", // 🔥 ini kunci
+    gap: 40, // jarak antar From & To
+    marginTop: 10,
+  },
+  label: {
+    fontSize: 14,
+    fontWeight: "600",
     marginBottom: 6,
-    padding: 8,
+  },
+
+  dateItem: {
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 4,
+  },
+
+  resetBtn: {
+    marginTop: 12,
+    backgroundColor: "#ef4444", // merah
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
+  },
+
+  resetText: {
+    color: "#fff",
+    fontWeight: "600",
   },
 });

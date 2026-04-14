@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import "react-native-reanimated";
 
 import { ThemeProvider, useTheme } from "@/src/context/ThemeContext";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 export { ErrorBoundary } from "expo-router";
 
@@ -21,6 +22,8 @@ export const unstable_settings = {
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const queryClient = new QueryClient();
+
   const [loaded, error] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
     ...FontAwesome.font,
@@ -41,9 +44,11 @@ export default function RootLayout() {
   }
 
   return (
-    <ThemeProvider>
-      <RootLayoutNav />
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider>
+        <RootLayoutNav />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
 
@@ -54,7 +59,7 @@ function RootLayoutNav() {
     <NavigationThemeProvider
       value={theme === "dark" ? DarkTheme : DefaultTheme}
     >
-      <Stack />
+      <Stack screenOptions={{ headerShown: false }} />
     </NavigationThemeProvider>
   );
 }

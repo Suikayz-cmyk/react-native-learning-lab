@@ -97,14 +97,14 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: "#fff",
     overflow: "hidden",
-    elevation: 2,
+    elevation: 3,
   },
   image: {
     width: "100%",
-    height: 150,
+    height: 180,
   },
   content: {
-    padding: 10,
+    padding: 12,
   },
   sourceBadge: {
     flexDirection: "row",
@@ -136,6 +136,6 @@ const styles = StyleSheet.create({
   shareBtn: {
     position: "absolute",
     bottom: 10,
-    right: 40,
+    right: 10,
   },
 });
