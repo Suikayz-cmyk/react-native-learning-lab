@@ -1,3 +1,5 @@
+import { darkTheme, lightTheme } from "@/src/constants/theme";
+import { useTheme } from "@/src/context/ThemeContext";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import {
@@ -47,7 +49,11 @@ export default function HomeScreen() {
 
   const { bookmarks, toggleBookmark } = useBookmarks();
 
-  // news default
+  // theme
+  const { theme, toggleTheme } = useTheme();
+  const colors = theme === "dark" ? darkTheme : lightTheme;
+
+  // data
   const {
     data,
     isLoading,
@@ -59,7 +65,6 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  // search + filter
   const {
     data: searchData,
     isLoading: isSearchLoading,
@@ -67,9 +72,12 @@ export default function HomeScreen() {
     error: searchError,
   } = useNewsSearch(search, source, fromDate, toDate);
 
-  // logic filtering
+  // filtering logic (SAFE)
   const isFiltering =
-    search.length >= 3 || source.length >= 3 || !!fromDate || !!toDate;
+    search.trim().length >= 3 ||
+    (source?.trim().length ?? 0) >= 3 ||
+    !!fromDate ||
+    !!toDate;
 
   const articles: Article[] = isFiltering
     ? (searchData?.articles ?? [])
@@ -84,94 +92,107 @@ export default function HomeScreen() {
     />
   );
 
-  // Loading default
+  // loading default
   if (isLoading && !isFiltering)
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Memuat berita...</Text>
+      <SafeAreaView
+        style={[styles.center, { backgroundColor: colors.background }]}
+      >
+        <ActivityIndicator />
+        <Text style={{ color: colors.text }}>Memuat berita...</Text>
       </SafeAreaView>
     );
 
   // loading search
   if (isSearchLoading && isFiltering)
     return (
-      <SafeAreaView style={styles.center}>
-        <ActivityIndicator size="large" />
-        <Text style={styles.loadingText}>Mencari berita...</Text>
+      <SafeAreaView
+        style={[styles.center, { backgroundColor: colors.background }]}
+      >
+        <ActivityIndicator />
+        <Text style={{ color: colors.text }}>Mencari berita...</Text>
       </SafeAreaView>
     );
 
-  // ERROR HANDLER FINAL (ANTI STUCK)
+  // error handler
   if (isError || isSearchError)
     return (
       <ErrorView
         message={(searchError || error)?.message}
         onRetry={() => {
-          // RESET STATE
           setSearch("");
           setSource("");
           setFromDate("");
           setToDate("");
 
-          // CLEAR CACHE
           queryClient.removeQueries({ queryKey: ["search"] });
 
-          // FETCH NORMAL DATA
           refetch();
         }}
       />
     );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>BeritaApp</Text>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <Text style={[styles.header, { color: colors.text }]}>BeritaApp</Text>
+
+      <Text
+        onPress={toggleTheme}
+        style={{
+          textAlign: "center",
+          color: "#3b82f6",
+          marginBottom: 10,
+        }}
+      >
+        Toggle {theme === "dark" ? "Light" : "Dark"} Mode
+      </Text>
 
       {/* SEARCH */}
       <TextInput
         placeholder="Cari berita..."
+        placeholderTextColor="#888"
         value={search}
         onChangeText={setSearch}
-        style={styles.search}
+        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
       />
 
       {/* FILTER */}
       <TextInput
         placeholder="Sumber (contoh: bbc-news)"
+        placeholderTextColor="#888"
         value={source}
         onChangeText={setSource}
-        style={styles.search}
+        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
       />
 
       <TextInput
         placeholder="Dari tanggal (YYYY-MM-DD)"
+        placeholderTextColor="#888"
         value={fromDate}
         onChangeText={setFromDate}
-        style={styles.search}
+        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
       />
 
       <TextInput
         placeholder="Sampai tanggal (YYYY-MM-DD)"
+        placeholderTextColor="#888"
         value={toDate}
         onChangeText={setToDate}
-        style={styles.search}
+        style={[styles.search, { color: colors.text, borderColor: "#888" }]}
       />
 
-      {/* RESET BUTTON */}
+      {/* RESET */}
       <Text
         onPress={() => {
           setSearch("");
           setSource("");
           setFromDate("");
           setToDate("");
-
           queryClient.removeQueries({ queryKey: ["search"] });
         }}
-        style={{
-          textAlign: "center",
-          color: "blue",
-          marginBottom: 10,
-        }}
+        style={{ textAlign: "center", color: "#3b82f6", marginBottom: 10 }}
       >
         Reset Filter
       </Text>
@@ -214,13 +235,8 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     padding: 12,
   },
-  loadingText: {
-    marginTop: 10,
-    textAlign: "center",
-  },
   search: {
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 8,
     marginHorizontal: 10,
     marginBottom: 6,
