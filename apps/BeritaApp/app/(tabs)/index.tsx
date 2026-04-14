@@ -5,6 +5,7 @@ import {
   RefreshControl,
   StyleSheet,
   Text,
+  TextInput,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -13,6 +14,7 @@ import { ErrorView } from "@/src/components/ErrorView";
 import { NewsCard } from "@/src/components/NewsCard";
 import { useBookmarks } from "@/src/hooks/useBookmarks";
 import { useNews } from "@/src/hooks/useNews";
+import { useNewsSearch } from "@/src/hooks/useSearch";
 import { Category } from "@/src/services/newsService";
 
 type Article = {
@@ -34,6 +36,7 @@ const CATEGORIES: { label: string; value: Category }[] = [
 
 export default function HomeScreen() {
   const [category, setCategory] = useState<Category>("general");
+  const [search, setSearch] = useState("");
 
   const { bookmarks, toggleBookmark } = useBookmarks();
 
@@ -48,7 +51,14 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  const articles: Article[] = data?.pages.flatMap((p: any) => p.articles) ?? [];
+  const { data: searchData, isLoading: isSearchLoading } =
+    useNewsSearch(search);
+
+  // 🔥 SATU AJA, JANGAN DOUBLE
+  const articles: Article[] =
+    search.length >= 3
+      ? (searchData?.articles ?? [])
+      : (data?.pages.flatMap((p: any) => p.articles) ?? []);
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
@@ -72,6 +82,13 @@ export default function HomeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.header}>BeritaApp</Text>
+
+      <TextInput
+        placeholder="Cari berita..."
+        value={search}
+        onChangeText={setSearch}
+        style={styles.search}
+      />
 
       <CategoryFilter
         categories={CATEGORIES}
@@ -122,5 +139,12 @@ const styles = StyleSheet.create({
   loadingText: {
     marginTop: 10,
     textAlign: "center",
+  },
+  search: {
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 8,
+    margin: 10,
+    padding: 8,
   },
 });
