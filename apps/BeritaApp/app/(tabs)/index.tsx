@@ -16,7 +16,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { CategoryFilter } from "@/src/components/CategoryFilter";
 import { NewsCard } from "@/src/components/NewsCard";
 import { useBookmarks } from "@/src/hooks/useBookmarks";
+import { useNewsSearch } from "@/src/hooks/useSearch";
 import { Category } from "@/src/services/newsService";
+
+import { ErrorView } from "@/src/components/ErrorView";
+import { useNews } from "@/src/hooks/useNews";
+import { ActivityIndicator, RefreshControl } from "react-native";
 
 type Article = {
   title: string;
@@ -80,8 +85,10 @@ export default function HomeScreen() {
   const { theme, toggleTheme } = useTheme();
   const colors = theme === "dark" ? darkTheme : lightTheme;
 
+  const USE_MOCK = false;
+
   // data
-  /*   const {
+  const {
     data,
     isLoading,
     isError,
@@ -92,24 +99,30 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  const { data: searchData } = useNewsSearch(
-  appliedSearch,
-  appliedSource,
-  appliedFromDate,
-  appliedToDate
-); */
+  const {
+    data: searchData,
+    isLoading: isSearchLoading,
+    isError: isSearchError,
+    error: searchError,
+  } = useNewsSearch(
+    appliedSearch,
+    appliedSource,
+    appliedFromDate,
+    appliedToDate,
+  );
 
-  // filtering logic (SAFE)
+  // filtering logic
   const isFiltering =
-    search.trim().length >= 3 ||
-    (source?.trim().length ?? 0) >= 3 ||
-    !!fromDate ||
-    !!toDate;
+    appliedSearch.trim().length >= 3 ||
+    (appliedSource?.trim().length ?? 0) >= 3 ||
+    !!appliedFromDate ||
+    !!appliedToDate;
 
-  const articles: Article[] = MOCK_ARTICLES;
-  /* const articles: Article[] = isFiltering
-  ? (searchData?.articles ?? [])
-  : (data?.pages.flatMap((p: any) => p.articles) ?? []); */
+  const articles = USE_MOCK
+    ? MOCK_ARTICLES
+    : isFiltering
+      ? (searchData?.articles ?? [])
+      : (data?.pages.flatMap((p: any) => p.articles) ?? []);
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
@@ -121,7 +134,7 @@ export default function HomeScreen() {
   );
 
   // loading default
-  /* if (isLoading && !isFiltering)
+  if (isLoading && !isFiltering)
     return (
       <SafeAreaView
         style={[styles.center, { backgroundColor: colors.background }]}
@@ -153,12 +166,10 @@ export default function HomeScreen() {
           setFromDate("");
           setToDate("");
 
-          queryClient.removeQueries({ queryKey: ["search"] });
-
           refetch();
         }}
       />
-    );*/
+    );
 
   return (
     <SafeAreaView
@@ -290,12 +301,12 @@ export default function HomeScreen() {
         data={articles}
         renderItem={renderItem}
         keyExtractor={(item) => item.url}
-        /* refreshControl={
+        refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
-        } 
-         onEndReached={() => hasNextPage && fetchNextPage()}
+        }
+        onEndReached={() => hasNextPage && fetchNextPage()}
         onEndReachedThreshold={0.3}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null} */
+        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
         contentContainerStyle={{
           paddingHorizontal: 12,
           paddingBottom: 24,
