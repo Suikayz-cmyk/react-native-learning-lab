@@ -71,6 +71,11 @@ export default function HomeScreen() {
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
+  const [appliedSearch, setAppliedSearch] = useState("");
+  const [appliedSource, setAppliedSource] = useState("");
+  const [appliedFromDate, setAppliedFromDate] = useState("");
+  const [appliedToDate, setAppliedToDate] = useState("");
+
   // theme
   const { theme, toggleTheme } = useTheme();
   const colors = theme === "dark" ? darkTheme : lightTheme;
@@ -87,12 +92,12 @@ export default function HomeScreen() {
     isFetchingNextPage,
   } = useNews(category);
 
-  const {
-    data: searchData,
-    isLoading: isSearchLoading,
-    isError: isSearchError,
-    error: searchError,
-  } = useNewsSearch(search, source, fromDate, toDate); */
+  const { data: searchData } = useNewsSearch(
+  appliedSearch,
+  appliedSource,
+  appliedFromDate,
+  appliedToDate
+); */
 
   // filtering logic (SAFE)
   const isFiltering =
@@ -245,6 +250,20 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          <TouchableOpacity
+            onPress={() => {
+              setAppliedSearch(search);
+              setAppliedSource(source);
+              setAppliedFromDate(fromDate);
+              setAppliedToDate(toDate);
+            }}
+            style={styles.applyBtn}
+          >
+            <Text style={{ color: "#fff", fontWeight: "600" }}>
+              Apply Filter
+            </Text>
+          </TouchableOpacity>
+
           {/* RESET */}
           <TouchableOpacity
             onPress={() => {
@@ -321,7 +340,6 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     paddingHorizontal: 16,
-    paddingTop: 12,
     paddingBottom: 8,
   },
   search: {
@@ -352,8 +370,8 @@ const styles = StyleSheet.create({
 
   dateRow: {
     flexDirection: "row",
-    justifyContent: "flex-start", // 🔥 ini kunci
-    gap: 40, // jarak antar From & To
+    justifyContent: "flex-start",
+    gap: 40,
     marginTop: 10,
   },
   label: {
@@ -379,5 +397,12 @@ const styles = StyleSheet.create({
   resetText: {
     color: "#fff",
     fontWeight: "600",
+  },
+  applyBtn: {
+    marginTop: 10,
+    backgroundColor: "#3b82f6",
+    paddingVertical: 8,
+    borderRadius: 8,
+    alignItems: "center",
   },
 });
