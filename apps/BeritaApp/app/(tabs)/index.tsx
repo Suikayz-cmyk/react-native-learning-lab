@@ -61,8 +61,6 @@ const CATEGORIES: { label: string; value: Category }[] = [
 ];
 
 export default function HomeScreen() {
-  //const queryClient = useQueryClient();
-
   // state
   const [category, setCategory] = useState<Category>("general");
   const [search, setSearch] = useState("");
@@ -71,12 +69,12 @@ export default function HomeScreen() {
   const [toDate, setToDate] = useState("");
 
   const { bookmarks, toggleBookmark } = useBookmarks();
+
   const [showSearch, setShowSearch] = useState(false);
   const [showFilter, setShowFilter] = useState(false);
   const [showFromPicker, setShowFromPicker] = useState(false);
   const [showToPicker, setShowToPicker] = useState(false);
 
-  const [appliedSearch, setAppliedSearch] = useState("");
   const [appliedSource, setAppliedSource] = useState("");
   const [appliedFromDate, setAppliedFromDate] = useState("");
   const [appliedToDate, setAppliedToDate] = useState("");
@@ -85,44 +83,37 @@ export default function HomeScreen() {
   const { theme, toggleTheme } = useTheme();
   const colors = theme === "dark" ? darkTheme : lightTheme;
 
-  const USE_MOCK = false;
+  const { data, isLoading, isError, error, refetch } = useNews(category);
 
-  // data
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useNews(category);
-
+  // search (AUTO)
   const {
     data: searchData,
     isLoading: isSearchLoading,
     isError: isSearchError,
     error: searchError,
-  } = useNewsSearch(
-    appliedSearch,
+  } = useNewsSearch(search);
+
+  // filter (APPLY)
+  const { data: filterData, isLoading: isFilterLoading } = useNewsSearch(
+    "",
     appliedSource,
     appliedFromDate,
     appliedToDate,
   );
 
-  // filtering logic
-  const isFiltering =
-    appliedSearch.trim().length >= 3 ||
-    (appliedSource?.trim().length ?? 0) >= 3 ||
-    !!appliedFromDate ||
-    !!appliedToDate;
+  // LOGIC: SEARCH & FILTER
 
-  const articles = USE_MOCK
-    ? MOCK_ARTICLES
+  const isSearching = search.trim().length >= 3;
+
+  const isFiltering = !!appliedSource || !!appliedFromDate || !!appliedToDate;
+
+  const articles = isSearching
+    ? (searchData?.articles ?? [])
     : isFiltering
-      ? (searchData?.articles ?? [])
+      ? (filterData?.articles ?? [])
       : (data?.pages.flatMap((p: any) => p.articles) ?? []);
+
+  // RENDER ITEM
 
   const renderItem = ({ item }: { item: Article }) => (
     <NewsCard
@@ -133,8 +124,9 @@ export default function HomeScreen() {
     />
   );
 
-  // loading default
-  if (isLoading && !isFiltering)
+  // LOADING STATES
+
+  if (isLoading && !isSearching && !isFiltering)
     return (
       <SafeAreaView
         style={[styles.center, { backgroundColor: colors.background }]}
@@ -144,8 +136,7 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
 
-  // loading search
-  if (isSearchLoading && isFiltering)
+  if (isSearchLoading && isSearching)
     return (
       <SafeAreaView
         style={[styles.center, { backgroundColor: colors.background }]}
@@ -155,7 +146,18 @@ export default function HomeScreen() {
       </SafeAreaView>
     );
 
-  // error handler
+  if (isFilterLoading && isFiltering)
+    return (
+      <SafeAreaView
+        style={[styles.center, { backgroundColor: colors.background }]}
+      >
+        <ActivityIndicator />
+        <Text style={{ color: colors.text }}>Memfilter berita...</Text>
+      </SafeAreaView>
+    );
+
+  // ERROR
+
   if (isError || isSearchError)
     return (
       <ErrorView
@@ -170,7 +172,6 @@ export default function HomeScreen() {
         }}
       />
     );
-
   return (
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
@@ -261,9 +262,9 @@ export default function HomeScreen() {
             </View>
           </View>
 
+          {/* APPLY FILTER */}
           <TouchableOpacity
             onPress={() => {
-              setAppliedSearch(search);
               setAppliedSource(source);
               setAppliedFromDate(fromDate);
               setAppliedToDate(toDate);
@@ -304,9 +305,6 @@ export default function HomeScreen() {
         refreshControl={
           <RefreshControl refreshing={isLoading} onRefresh={refetch} />
         }
-        onEndReached={() => hasNextPage && fetchNextPage()}
-        onEndReachedThreshold={0.3}
-        ListFooterComponent={isFetchingNextPage ? <ActivityIndicator /> : null}
         contentContainerStyle={{
           paddingHorizontal: 12,
           paddingBottom: 24,
@@ -399,7 +397,7 @@ const styles = StyleSheet.create({
 
   resetBtn: {
     marginTop: 12,
-    backgroundColor: "#ef4444", // merah
+    backgroundColor: "#ef4444",
     paddingVertical: 8,
     borderRadius: 8,
     alignItems: "center",
