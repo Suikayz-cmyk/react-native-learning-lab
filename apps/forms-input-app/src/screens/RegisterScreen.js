@@ -1,14 +1,134 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+
+import FormInput from '../components/FormInput';
+
+const registerSchema = Yup.object({
+  name: Yup.string()
+    .min(3, 'Nama minimal 3 karakter')
+    .required('Nama wajib diisi'),
+
+  email: Yup.string()
+    .email('Format email tidak valid')
+    .required('Email wajib diisi'),
+
+  phone: Yup.string()
+    .matches(/^[0-9]+$/, 'Nomor hanya angka')
+    .min(10, 'Nomor terlalu pendek')
+    .required('Nomor HP wajib diisi'),
+
+  password: Yup.string()
+    .min(6, 'Password minimal 6 karakter')
+    .required('Password wajib diisi'),
+
+  confirmPassword: Yup.string()
+    .oneOf(
+      [Yup.ref('password')],
+      'Password tidak sama'
+    )
+    .required('Konfirmasi password wajib'),
+});
 
 export default function RegisterScreen({ navigation }) {
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      email: '',
+      phone: '',
+      password: '',
+      confirmPassword: '',
+    },
+
+    validationSchema: registerSchema,
+
+    onSubmit: (values) => {
+      console.log('Register Success:', values);
+
+      Alert.alert(
+        'Sukses',
+        'Akun berhasil dibuat!'
+      );
+
+      navigation.navigate('Login');
+    },
+  });
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Register Screen</Text>
+      <Text style={styles.title}>Register</Text>
 
-      <Button
-        title="Back to Login"
-        onPress={() => navigation.goBack()}
+      <FormInput
+        label="Full Name"
+        placeholder="Enter your name"
+        value={formik.values.name}
+        onChangeText={formik.handleChange('name')}
+        onBlur={formik.handleBlur('name')}
+        error={formik.errors.name}
+        touched={formik.touched.name}
       />
+
+      <FormInput
+        label="Email"
+        placeholder="Enter your email"
+        keyboardType="email-address"
+        autoCapitalize="none"
+        value={formik.values.email}
+        onChangeText={formik.handleChange('email')}
+        onBlur={formik.handleBlur('email')}
+        error={formik.errors.email}
+        touched={formik.touched.email}
+      />
+
+      <FormInput
+        label="Phone Number"
+        placeholder="Enter phone number"
+        keyboardType="numeric"
+        value={formik.values.phone}
+        onChangeText={formik.handleChange('phone')}
+        onBlur={formik.handleBlur('phone')}
+        error={formik.errors.phone}
+        touched={formik.touched.phone}
+      />
+
+      <FormInput
+        label="Password"
+        placeholder="Enter password"
+        secureTextEntry
+        value={formik.values.password}
+        onChangeText={formik.handleChange('password')}
+        onBlur={formik.handleBlur('password')}
+        error={formik.errors.password}
+        touched={formik.touched.password}
+      />
+
+      <FormInput
+        label="Confirm Password"
+        placeholder="Repeat password"
+        secureTextEntry
+        value={formik.values.confirmPassword}
+        onChangeText={formik.handleChange('confirmPassword')}
+        onBlur={formik.handleBlur('confirmPassword')}
+        error={formik.errors.confirmPassword}
+        touched={formik.touched.confirmPassword}
+      />
+
+      <TouchableOpacity
+        style={styles.button}
+        onPress={formik.handleSubmit}
+      >
+        <Text style={styles.buttonText}>
+          Register
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        onPress={() => navigation.goBack()}
+      >
+        <Text style={styles.link}>
+          Already have account? Login
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
@@ -16,13 +136,34 @@ export default function RegisterScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
+    justifyContent: 'center',
   },
+
   title: {
-    color: 'white',
-    fontSize: 28,
-    marginBottom: 20,
+    color: '#fff',
+    fontSize: 30,
     fontWeight: 'bold',
+    marginBottom: 22,
+  },
+
+  button: {
+    backgroundColor: '#00b894',
+    padding: 15,
+    borderRadius: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+
+  link: {
+    color: '#4c8bf5',
+    textAlign: 'center',
+    marginTop: 18,
   },
 });
