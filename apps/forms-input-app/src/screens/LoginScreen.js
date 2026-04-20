@@ -1,13 +1,22 @@
-import { View, Text, Button, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
+import FormInput from '../components/FormInput';
 
-export default function LoginScreen({ navigation }) {
+export default function LoginScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Login Screen</Text>
+      <Text style={styles.title}>Login</Text>
 
-      <Button
-        title="Go to Register"
-        onPress={() => navigation.navigate('Register')}
+      <FormInput
+        label="Email"
+        placeholder="Enter your email"
+      />
+
+      <FormInput
+        label="Password"
+        placeholder="Enter password"
+        secureTextEntry
+        error="Password terlalu pendek"
+        touched={true}
       />
     </View>
   );
@@ -16,13 +25,14 @@ export default function LoginScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
     padding: 20,
+    justifyContent: 'center',
   },
+
   title: {
     color: 'white',
     fontSize: 28,
-    marginBottom: 20,
     fontWeight: 'bold',
+    marginBottom: 25,
   },
 });
