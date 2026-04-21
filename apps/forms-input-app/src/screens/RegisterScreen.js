@@ -1,8 +1,20 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+  Image,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from 'react-native';
+
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-
 import FormInput from '../components/FormInput';
+
+import * as ImagePicker from 'expo-image-picker';
 
 const registerSchema = Yup.object({
   name: Yup.string()
@@ -38,6 +50,7 @@ export default function RegisterScreen({ navigation }) {
       phone: '',
       password: '',
       confirmPassword: '',
+      profileImage: '',
     },
 
     validationSchema: registerSchema,
@@ -53,10 +66,70 @@ export default function RegisterScreen({ navigation }) {
       navigation.navigate('Login');
     },
   });
+const pickImage = async () => {
+  const permission =
+    await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+  if (!permission.granted) {
+    Alert.alert(
+      'Permission Denied',
+      'Izinkan akses galeri terlebih dahulu.'
+    );
+    return;
+  }
+
+  const result =
+    await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+
+  if (!result.canceled) {
+    const imageUri = result.assets[0].uri;
+
+    formik.setFieldValue(
+      'profileImage',
+      imageUri
+    );
+  }
+};
 
   return (
-    <View style={styles.container}>
+  <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={
+      Platform.OS === 'ios'
+        ? 'padding'
+        : 'height'
+    }
+  >
+    <ScrollView
+      contentContainerStyle={styles.scrollContainer}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    >
+      <View style={styles.container}>
       <Text style={styles.title}>Register</Text>
+
+      <TouchableOpacity
+        style={styles.imagePicker}
+        onPress={pickImage}
+      >
+        {formik.values.profileImage ? (
+          <Image
+            source={{
+              uri: formik.values.profileImage,
+            }}
+            style={styles.profileImage}
+          />
+        ) : (
+          <Text style={styles.imageText}>
+            Choose Profile Photo
+          </Text>
+        )}
+      </TouchableOpacity>
 
       <FormInput
         label="Full Name"
@@ -129,8 +202,10 @@ export default function RegisterScreen({ navigation }) {
           Already have account? Login
         </Text>
       </TouchableOpacity>
-    </View>
-  );
+          </View>
+    </ScrollView>
+  </KeyboardAvoidingView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -145,6 +220,35 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: 'bold',
     marginBottom: 22,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  imagePicker: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#1a1a1a',
+    borderWidth: 1,
+    borderColor: '#333',
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 25,
+    overflow: 'hidden',
+  },
+
+  profileImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+  imageText: {
+    color: '#aaa',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+    fontSize: 12,
   },
 
   button: {
