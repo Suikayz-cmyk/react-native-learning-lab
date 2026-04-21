@@ -1,4 +1,16 @@
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from 'react-native';
+
+import { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 
@@ -15,6 +27,8 @@ const loginSchema = Yup.object({
 });
 
 export default function LoginScreen({ navigation }) {
+  const [loading, setLoading] = useState(false);
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -24,14 +38,28 @@ export default function LoginScreen({ navigation }) {
     validationSchema: loginSchema,
 
     onSubmit: (values) => {
-      console.log('Login Success:', values);
+      setLoading(true);
 
-      navigation.navigate('Home');
+      setTimeout(() => {
+        setLoading(false);
+        navigation.navigate('Home');
+      }, 1200);
     },
+    
   });
 
   return (
-    <View style={styles.container}>
+  <KeyboardAvoidingView
+    style={{ flex: 1 }}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+  >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
 
       <FormInput
@@ -58,11 +86,16 @@ export default function LoginScreen({ navigation }) {
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          (!formik.isValid || loading) &&
+            styles.buttonDisabled
+        ]}
+        disabled={!formik.isValid || loading}
         onPress={formik.handleSubmit}
       >
         <Text style={styles.buttonText}>
-          Login
+          {loading ? 'Loading...' : 'Login'}
         </Text>
       </TouchableOpacity>
 
@@ -73,8 +106,11 @@ export default function LoginScreen({ navigation }) {
           Don't have account? Register
         </Text>
       </TouchableOpacity>
-    </View>
-  );
+            </View>
+      </ScrollView>
+    </TouchableWithoutFeedback>
+  </KeyboardAvoidingView>
+);
 }
 
 const styles = StyleSheet.create({
@@ -109,5 +145,13 @@ const styles = StyleSheet.create({
     color: '#4c8bf5',
     textAlign: 'center',
     marginTop: 18,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+
+  buttonDisabled: {
+    opacity: 0.5,
   },
 });

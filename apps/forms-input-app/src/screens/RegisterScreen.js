@@ -6,9 +6,13 @@ import {
   Alert,
   Image,
   ScrollView,
+  Keyboard,
   KeyboardAvoidingView,
   Platform,
+  TouchableWithoutFeedback,
 } from 'react-native';
+
+import { useState } from 'react';
 
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
@@ -105,6 +109,7 @@ const pickImage = async () => {
         : 'height'
     }
   >
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
     <ScrollView
       contentContainerStyle={styles.scrollContainer}
       showsVerticalScrollIndicator={false}
@@ -187,7 +192,12 @@ const pickImage = async () => {
       />
 
       <TouchableOpacity
-        style={styles.button}
+        style={[
+          styles.button,
+          !formik.isValid &&
+            styles.buttonDisabled
+        ]}
+        disabled={!formik.isValid}
         onPress={formik.handleSubmit}
       >
         <Text style={styles.buttonText}>
@@ -204,6 +214,7 @@ const pickImage = async () => {
       </TouchableOpacity>
           </View>
     </ScrollView>
+    </TouchableWithoutFeedback>
   </KeyboardAvoidingView>
 );
 }
@@ -257,6 +268,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: 'center',
     marginTop: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
   },
 
   buttonText: {
