@@ -14,6 +14,7 @@ export default function AppNavigator() {
           backgroundColor: '#111',
         },
         headerTintColor: '#fff',
+        headerTitleAlign: 'center',
         contentStyle: {
           backgroundColor: '#0d0d0d',
         },
@@ -22,16 +23,26 @@ export default function AppNavigator() {
       <Stack.Screen
         name="Login"
         component={LoginScreen}
+        options={{
+          title: 'Sign In',
+        }}
       />
 
       <Stack.Screen
         name="Register"
         component={RegisterScreen}
+        options={{
+          title: 'Create Account',
+        }}
       />
 
       <Stack.Screen
         name="Home"
         component={HomeScreen}
+        options={{
+          headerBackVisible: false,
+          title: 'Dashboard',
+        }}
       />
     </Stack.Navigator>
   );
