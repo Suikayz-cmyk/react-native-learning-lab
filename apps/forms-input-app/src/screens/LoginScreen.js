@@ -41,6 +41,23 @@ export default function LoginScreen({ navigation }) {
       setLoading(true);
 
       setTimeout(() => {
+        const validEmail = 'admin@gmail.com';
+        const validPassword = '123456';
+
+        if (
+          values.email !== validEmail ||
+          values.password !== validPassword
+        ) {
+          setLoading(false);
+
+          formik.setFieldError(
+            'password',
+            'Email atau password salah'
+          );
+
+          return;
+        }
+
         setLoading(false);
         navigation.navigate('Home');
       }, 1200);
